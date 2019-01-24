@@ -5,15 +5,25 @@ import java.util.*;
 public class RestManager {
 
     private final Set<Table> tables;
-    private final Queue<ClientsGroup> clients;
+    private final List<ClientsGroup> clients;
 
     public RestManager(Collection<Table> tables) {
         this.tables = new HashSet<>(tables);
-        this.clients = new LinkedList<>();
+        this.clients = new ArrayList<>();
     }
 
     // new client(s) show up
     public void onArrive(ClientsGroup group) {
+
+        Table table = lookupFreeTable(group);
+        if (table != null) {
+            table.acceptGroup(group);
+        } else {
+            clients.add(group);
+        }
+    }
+
+    private Table lookupFreeTable(ClientsGroup group) {
         Table table = null;
         for (Table t : tables) {
             if (t.size == group.size && t.isFree()) {
@@ -29,12 +39,7 @@ public class RestManager {
                 }
             }
         }
-
-        if (table != null) {
-            table.acceptGroup(group);
-        } else {
-            clients.offer(group);
-        }
+        return table;
     }
 
     // client(s) leave, either served or simply abandoning the queue
@@ -45,9 +50,13 @@ public class RestManager {
                 groupTable.leaveGroup(group);
             }
 
-            ClientsGroup groupFromQueue;
-            while ((groupFromQueue = clients.poll()) != null) {
-                onArrive(groupFromQueue);
+            for (int i = clients.size() - 1; i >= 0; i--) {
+                ClientsGroup clientFromQueue = clients.get(i);
+                Table table = lookupFreeTable(clientFromQueue);
+                if (table != null) {
+                    table.acceptGroup(clientFromQueue);
+                    clients.remove(clientFromQueue);
+                }
             }
         }
     }
@@ -67,7 +76,7 @@ public class RestManager {
         return tables;
     }
 
-    public Queue<ClientsGroup> getClients() {
+    public List<ClientsGroup> getClients() {
         return clients;
     }
 }

@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Queue;
+import java.util.List;
 
 public class RestManagerTest {
 
@@ -45,7 +45,7 @@ public class RestManagerTest {
         int[] clients = new int[]{1, 2, 3, 4, 5, 6,
                 6, 5, 4, -5};
         replay(clients);
-        Queue<ClientsGroup> cq = rm.getClients();
+        List<ClientsGroup> cq = rm.getClients();
         //
         System.out.println(cq.toString());
         System.out.println(rm.getTables().toString());
@@ -62,7 +62,7 @@ public class RestManagerTest {
     public void test_3() {
         int[] clients = new int[]{3, 3, 3, 3, 3, 3};
         replay(clients);
-        Queue<ClientsGroup> cq = rm.getClients();
+        List<ClientsGroup> cq = rm.getClients();
         //
         System.out.println(cq.toString());
         System.out.println(rm.getTables().toString());
